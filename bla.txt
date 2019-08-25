@@ -1,0 +1,23 @@
+﻿vivaldi://extensions
+
+git server is in SouncloudHideRepostStable
+git clone is SouncloudHideRepostDev
+
+- garder seulement: - les posts
+		    - les elements dont le nom de l'artiste est contenu dans le nom de la chanson
+
+TODOs:
+- faire en sorte que la checkbox marche (active et désactive l'affichage)
+
+-garder les playlists dont le nom contient le nom de l'artiste (meme en repost)
+
+- est-ce que la playlist (d'écoute) va suivre les tracks affich� en html ? non. comment faire ?
+
+-hide soundcloud go stuff ?
+
+
+
+
+
+
+

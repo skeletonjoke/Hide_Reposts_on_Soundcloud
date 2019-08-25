@@ -1,0 +1,14 @@
+{
+    "manifest_version": 2,
+   
+    "name": "Soundcloud hide repost Dev !!!",
+    "version": "1.0",
+    "description": "Dev version, for developping purposes",
+   
+    "content_scripts": [{
+      "css": ["style.css"],
+      "js": ["main.js"],
+      "matches": ["https://soundcloud.com/stream"]
+    }]
+   
+  }

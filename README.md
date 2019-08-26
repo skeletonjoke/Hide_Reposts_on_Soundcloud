@@ -7,3 +7,4 @@ This is a chrome extention. it does the following:
 
 But it doesn't remove the songs from the next playing songs (the thing in the right hand corner)
 
+![Screenshot](ReadMe/screenshot.png)

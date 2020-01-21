@@ -1,9 +1,9 @@
 {
     "manifest_version": 2,
    
-    "name": "Soundcloud hide repost Dev !!!",
+    "name": "Soundcloud hide repost",
     "version": "1.0",
-    "description": "Dev version, for developping purposes",
+    "description": "Hide reposts on your souncloud stream",
    
     "content_scripts": [{
       "css": ["style.css"],

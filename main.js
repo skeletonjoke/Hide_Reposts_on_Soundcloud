@@ -7,13 +7,13 @@ verbose = debug
 else verbose = false;
 
 var stream = document.getElementsByClassName("stream")[0]; // le contenu de l'onglet stream
-var streamHeader = document.getElementsByClassName("stream__header")[0]; // le haut de l'onglet stream
+// var streamHeader = document.getElementsByClassName("stream__header")[0]; // le haut de l'onglet stream
 var streamList; // la liste les chansons (li) du stream
 
 //-------------------- checkbox ----------------
 
 var checkboxHtml = `
- <div class="checkboxControl">
+ <div class="checkboxControl sc-type-large">
      <label class="checkbox sc-checkbox">
          <input type="checkbox" id="hide-reposts" checked>
          <span class="sc-checkbox-label">Hide the </span>
@@ -27,8 +27,7 @@ var checkboxHtml = `
 var checkboxParsed = new DOMParser().parseFromString(checkboxHtml, 'text/html');
 checkboxParsed = checkboxParsed.firstChild;
 // streamHeader.appendChild(checkboxParsed);
-streamHeader.innerHTML = checkboxHtml;//remplacer l'entete par la checkbox
-//TODO plutot que de supprimer l'entete, ajouter la checkbox à la suite de l'entete
+stream.insertAdjacentHTML( "afterbegin",checkboxHtml); //add the checkbox to the page
 
 var checkboxElement;
 

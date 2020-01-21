@@ -176,8 +176,9 @@ function streamLiToElement(li) {
 //param ariaLabel
 //return: boolean -> is it a repost ?
 function checkRepost(ariaLabel) {
-    // look for "repostée" in the aria-label atribute
-    if (ariaLabel.indexOf("reposté") != -1) {
+    // look for "repost" in the aria-label atribute
+    // TODO: do it a better way
+    if (ariaLabel.indexOf("repost") != -1) {
         return true;
     } else {
         return false;

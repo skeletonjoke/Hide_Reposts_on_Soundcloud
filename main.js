@@ -2,8 +2,8 @@
 var debug = false;
 //dev verbose
 var verbose;
-if(debug == false) 
-verbose = debug 
+if (debug == false)
+    verbose = debug
 else verbose = false;
 
 var stream = document.getElementsByClassName("stream")[0]; // le contenu de l'onglet stream
@@ -27,7 +27,7 @@ var checkboxHtml = `
 var checkboxParsed = new DOMParser().parseFromString(checkboxHtml, 'text/html');
 checkboxParsed = checkboxParsed.firstChild;
 // streamHeader.appendChild(checkboxParsed);
-stream.insertAdjacentHTML( "afterbegin",checkboxHtml); //add the checkbox to the page
+stream.insertAdjacentHTML("afterbegin", checkboxHtml); //add the checkbox to the page
 
 var checkboxElement;
 
@@ -39,7 +39,7 @@ function onLoad() {
 }
 
 function main() {
-    if(debug) console.log("main()");
+    if (debug) console.log("main()");
     //-------------------- stream ----------------
 
     checkboxElement = document.getElementById('hide-reposts');
@@ -57,9 +57,9 @@ function hideShowReposts(a, ev) {
     var counter = 0;
 
     streamList = document.getElementsByClassName("soundList__item");
-    if(debug) console.log("streamList.length = " + streamList.length);
+    if (debug) console.log("streamList.length = " + streamList.length);
     if (checkboxElement.checked) {
-        if(debug) console.log("hiding Reposts");
+        if (debug) console.log("hiding Reposts");
         for (var i = 0; i < streamList.length; i++) {
             var element = streamLiToElement(streamList[i]);
             if (element != undefined) {// safety check
@@ -67,7 +67,7 @@ function hideShowReposts(a, ev) {
                 if (isPlaylist(element, ariaLabel)) {
                     if (verbose) console.log("it's a playlist");
                     if (doWeHideThisPlaylist(element, ariaLabel)) {
-                        if(debug) console.log("HIDING -> " + ariaLabel);
+                        if (debug) console.log("HIDING -> " + ariaLabel);
                         // element.parentNode.removeChild(element);
                         element.classList.add('hide-repost');
                         counter++
@@ -75,7 +75,7 @@ function hideShowReposts(a, ev) {
                 } else {
                     if (verbose) console.log("it's a song");
                     if (doWeHideThisSong(element, ariaLabel)) {
-                        if(debug) console.log("HIDING -> " + ariaLabel);
+                        if (debug) console.log("HIDING -> " + ariaLabel);
                         // element.parentNode.removeChild(element);
                         element.classList.add('hide-repost');
                         counter++
@@ -85,7 +85,7 @@ function hideShowReposts(a, ev) {
         }
         document.getElementById('number-reposts').innerHTML = counter.toString()
     } else {
-        if(debug) console.log("showing Reposts");
+        if (debug) console.log("showing Reposts");
         for (var i = 0; i < streamList.length; i++) {
             var element = streamLiToElement(streamList[i]);
             if (element != undefined) {// safety check

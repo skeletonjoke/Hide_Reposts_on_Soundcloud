@@ -1,37 +1,11 @@
+console.log("extension loaded !");
 //dev debug
-var debug = false;
+var debug = true;
 //dev verbose
-var verbose;
-if (debug == false)
-    verbose = debug
-else verbose = false;
-
-var stream = document.getElementsByClassName("stream")[0]; // le contenu de l'onglet stream
-// var streamHeader = document.getElementsByClassName("stream__header")[0]; // le haut de l'onglet stream
-var streamList; // la liste les chansons (li) du stream
-
-//-------------------- checkbox ----------------
-
-var checkboxHtml = `
- <div class="checkboxControl sc-type-large">
-     <label class="checkbox sc-checkbox">
-         <input type="checkbox" id="hide-reposts" checked>
-         <span class="sc-checkbox-label">Hide the </span>
-         <span class="sc-checkbox-label" id="number-reposts" >0</span>
-         <span class="sc-checkbox-label"> reposts</span>
-     </label>
-     <div class="checkboxFormControl__validation g-input-validation g-input-validation-hidden"></div>
- </div>
- `
-
-var checkboxParsed = new DOMParser().parseFromString(checkboxHtml, 'text/html');
-checkboxParsed = checkboxParsed.firstChild;
-// streamHeader.appendChild(checkboxParsed);
-stream.insertAdjacentHTML("afterbegin", checkboxHtml); //add the checkbox to the page
+var verbose = false;
+if (debug == false) verbose = false //Verbose is not shown when debug is not shown 
 
 var checkboxElement;
-
-window.onload = onLoad;
 
 function onLoad() {
     main();
@@ -40,6 +14,33 @@ function onLoad() {
 
 function main() {
     if (debug) console.log("main()");
+
+
+    var stream = document.getElementsByClassName("stream")[0]; // le contenu de l'onglet stream
+    // var streamHeader = document.getElementsByClassName("stream__header")[0]; // le haut de l'onglet stream
+    var streamList; // la liste les chansons (li) du stream
+
+    //-------------------- add checkbox ----------------
+
+    var checkboxHtml = `
+     <div class="checkboxControl sc-type-large">
+         <label class="checkbox sc-checkbox">
+             <input type="checkbox" id="hide-reposts" checked>
+             <span class="sc-checkbox-label">Hide the </span>
+             <span class="sc-checkbox-label" id="number-reposts" >0</span>
+             <span class="sc-checkbox-label"> reposts</span>
+         </label>
+         <div class="checkboxFormControl__validation g-input-validation g-input-validation-hidden"></div>
+     </div>
+     `
+
+    var checkboxParsed = new DOMParser().parseFromString(checkboxHtml, 'text/html');
+    checkboxParsed = checkboxParsed.firstChild;
+    // streamHeader.appendChild(checkboxParsed);
+    stream.insertAdjacentHTML("afterbegin", checkboxHtml); //add the checkbox to the page
+
+
+
     //-------------------- stream ----------------
 
     checkboxElement = document.getElementById('hide-reposts');
@@ -54,12 +55,13 @@ function main() {
 //ev: event
 //return: nothing
 function hideShowReposts(a, ev) {
+    if (debug) console.log("hideShowReposts");
     var counter = 0;
 
     streamList = document.getElementsByClassName("soundList__item");
-    if (debug) console.log("streamList.length = " + streamList.length);
+    if (verbose) console.log("streamList.length = " + streamList.length);
     if (checkboxElement.checked) {
-        if (debug) console.log("hiding Reposts");
+        if (verbose) console.log("hiding Reposts");
         for (var i = 0; i < streamList.length; i++) {
             var element = streamLiToElement(streamList[i]);
             if (element != undefined) {// safety check
@@ -67,7 +69,7 @@ function hideShowReposts(a, ev) {
                 if (isPlaylist(element, ariaLabel)) {
                     if (verbose) console.log("it's a playlist");
                     if (doWeHideThisPlaylist(element, ariaLabel)) {
-                        if (debug) console.log("HIDING -> " + ariaLabel);
+                        if (verbose) console.log("HIDING -> " + ariaLabel);
                         // element.parentNode.removeChild(element);
                         element.classList.add('hide-repost');
                         counter++
@@ -75,7 +77,7 @@ function hideShowReposts(a, ev) {
                 } else {
                     if (verbose) console.log("it's a song");
                     if (doWeHideThisSong(element, ariaLabel)) {
-                        if (debug) console.log("HIDING -> " + ariaLabel);
+                        if (verbose) console.log("HIDING -> " + ariaLabel);
                         // element.parentNode.removeChild(element);
                         element.classList.add('hide-repost');
                         counter++
@@ -85,7 +87,7 @@ function hideShowReposts(a, ev) {
         }
         document.getElementById('number-reposts').innerHTML = counter.toString()
     } else {
-        if (debug) console.log("showing Reposts");
+        if (verbose) console.log("showing Reposts");
         for (var i = 0; i < streamList.length; i++) {
             var element = streamLiToElement(streamList[i]);
             if (element != undefined) {// safety check
@@ -184,3 +186,8 @@ function checkRepost(ariaLabel) {
         return false;
     }
 }
+
+
+
+
+window.onload = onLoad;

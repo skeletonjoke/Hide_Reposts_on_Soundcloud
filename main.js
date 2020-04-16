@@ -1,4 +1,5 @@
-console.log("extension loaded !");
+//this is the content script
+console.log("content script loaded !");
 //dev debug
 var debug = true;
 //dev verbose
@@ -7,14 +8,44 @@ if (debug == false) verbose = false //Verbose is not shown when debug is not sho
 
 var checkboxElement;
 
+
 function onLoad() {
-    main();
+    if(window.location.toString() == "https://soundcloud.com/stream"){
+        initializeExtension()
+    }
+}
+
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+        // Look for Exact message
+        if ((request.action == "HideReposts") && (window.location.toString() == "https://soundcloud.com/stream")) {   
+            //we are on the correct page (for sure)
+            console.log("message received");
+
+            initializeExtension()
+
+        }
+    });
+
+async function initializeExtension(){
+    
+    var isCheckboxInitialized = (document.getElementById('hide-reposts') != null);
+    while(isCheckboxInitialized != true) {
+        isCheckboxInitialized = initializeCheckbox()
+        if(isCheckboxInitialized != true){
+            //wait some time -> sleep()
+            await new Promise(r => setTimeout(r, 200));
+        }
+    }
+
+    hideShowReposts();
     window.onscroll = hideShowReposts;
 }
 
-function main() {
-    if (debug) console.log("main()");
 
+
+function initializeCheckbox() {
+    if (debug) console.log("initializeCheckbox()");
 
     var stream = document.getElementsByClassName("stream")[0]; // le contenu de l'onglet stream
     // var streamHeader = document.getElementsByClassName("stream__header")[0]; // le haut de l'onglet stream
@@ -37,18 +68,23 @@ function main() {
     var checkboxParsed = new DOMParser().parseFromString(checkboxHtml, 'text/html');
     checkboxParsed = checkboxParsed.firstChild;
     // streamHeader.appendChild(checkboxParsed);
-    stream.insertAdjacentHTML("afterbegin", checkboxHtml); //add the checkbox to the page
+    if (stream != undefined){
+        stream.insertAdjacentHTML("afterbegin", checkboxHtml); //add the checkbox to the page
+        
+        //-------------------- bind checkbox state to hide/show ----------------
+        checkboxElement = document.getElementById('hide-reposts');
+        //quand la valeur de checkbox change -> machiné les chansons
+        checkboxElement.addEventListener("click", hideShowReposts);
 
-
-
-    //-------------------- stream ----------------
-
-    checkboxElement = document.getElementById('hide-reposts');
-
-    hideShowReposts();
-
-    //quand la valeur de checkbox change -> machiné les chansons
-    checkboxElement.addEventListener("click", hideShowReposts);
+        //is checkbox correctly setup
+        return true
+    }else{
+        //TODO REtry to setup the checkbox later
+        console.log("stream not initialized yet")
+        //retry to init checkbox
+        console.log("retrying")
+        return false
+    }
 }
 
 //this : htmlElement

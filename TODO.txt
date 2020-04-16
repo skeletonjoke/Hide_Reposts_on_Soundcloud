@@ -12,7 +12,7 @@ TODOs:
 
 -hide soundcloud go stuff ?
 
-- Sometimes the extention do not load. Reloading the page resolve the issue.
+- go check the extension error "Unchecked runtime.lastError: The message port closed before a response was received."
 
 
 

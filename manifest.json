@@ -3,12 +3,17 @@
    
     "name": "Soundcloud hide repost",
     "version": "1.0",
-    "description": "Hide reposts on your souncloud stream",
-   
+    "description": "Hide reposts on your soundcloud stream",
+    "background": {
+      "scripts":["background.js"]
+    },
     "content_scripts": [{
       "css": ["style.css"],
       "js": ["main.js"],
-      "matches": ["https://soundcloud.com/stream"]
-    }]
+      "matches": ["https://soundcloud.com/*"]
+    }],
+    "permissions": [
+      "webNavigation"
+    ]
    
   }

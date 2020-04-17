@@ -6,6 +6,16 @@ var debug = true;
 var verbose = false;
 if (debug == false) verbose = false //Verbose is not shown when debug is not shown 
 
+// Soundcloud's const string
+const STREAM_URL = "https://soundcloud.com/stream";
+const ID_STREAM = "stream";
+
+//// MY const strings
+const ID_CHECKBOX = 'hide-reposts';
+const ID_NUMBER_OF_REPOST = "number-reposts";
+const CLASS_HIDE_ELEMENT = 'hide-repost';
+
+// var
 var checkboxElement;
 var stream = undefined;
 var counter = 0;
@@ -13,7 +23,7 @@ var previousCounter = 0;
 
 
 function onLoad() {
-    if(window.location.toString() == "https://soundcloud.com/stream"){
+    if(window.location.toString() == STREAM_URL){
         initializeExtension()
     }
 }
@@ -21,7 +31,7 @@ function onLoad() {
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         // Look for Exact message
-        if ((request.action == "HideReposts") && (window.location.toString() == "https://soundcloud.com/stream")) {   
+        if ((request.action == "setupExtension") && (window.location.toString() == STREAM_URL)) {
             //we are on the correct page (for sure)
             console.log("message received");
 
@@ -37,7 +47,7 @@ async function initializeExtension(){
     counter = 0;
     previousCounter = 0;
     
-    var isCheckboxInitialized = (document.getElementById('hide-reposts') != null);
+    var isCheckboxInitialized = (document.getElementById(ID_CHECKBOX) != null);
     while(isCheckboxInitialized != true) {
         isCheckboxInitialized = initializeCheckbox()
         if(isCheckboxInitialized != true){
@@ -51,7 +61,7 @@ async function initializeExtension(){
     var observerStream = new MutationObserver(function(mutations) {
         hideShowReposts()
       });
-    observerStream.observe(stream, { attributes: false, childList: true, subtree: true, characterData: false });
+        observerStream.observe(stream, { attributes: false, childList: true, subtree: true, characterData: false });
 
 }
 
@@ -60,7 +70,7 @@ async function initializeExtension(){
 function initializeCheckbox() {
     if (debug) console.log("initializeCheckbox()");
 
-    stream = document.getElementsByClassName("stream")[0]; // le contenu de l'onglet stream
+    stream = document.getElementsByClassName(ID_STREAM)[0]; // le contenu de l'onglet stream
     // var streamHeader = document.getElementsByClassName("stream__header")[0]; // le haut de l'onglet stream
     var streamList; // la liste les chansons (li) du stream
 
@@ -69,9 +79,9 @@ function initializeCheckbox() {
     var checkboxHtml = `
      <div class="checkboxControl sc-type-large">
          <label class="checkbox sc-checkbox">
-             <input type="checkbox" id="hide-reposts" checked>
+             <input type="checkbox" id="` + ID_CHECKBOX + `" checked>
              <span class="sc-checkbox-label">Hide the </span>
-             <span class="sc-checkbox-label" id="number-reposts" >0</span>
+             <span class="sc-checkbox-label" id="` + ID_NUMBER_OF_REPOST + `" >0</span>
              <span class="sc-checkbox-label"> reposts</span>
          </label>
          <div class="checkboxFormControl__validation g-input-validation g-input-validation-hidden"></div>
@@ -85,7 +95,7 @@ function initializeCheckbox() {
         stream.insertAdjacentHTML("afterbegin", checkboxHtml); //add the checkbox to the page
         
         //-------------------- bind checkbox state to hide/show ----------------
-        checkboxElement = document.getElementById('hide-reposts');
+        checkboxElement = document.getElementById(ID_CHECKBOX);
         //quand la valeur de checkbox change -> machiné les chansons
         checkboxElement.addEventListener("click", hideShowReposts);
 
@@ -119,8 +129,8 @@ function hideShowReposts(a, ev) {
                     if (doWeHideThisPlaylist(element, ariaLabel)) {
                         if (verbose) console.log("HIDING -> " + ariaLabel);
                         // element.parentNode.removeChild(element);
-                        if(element.classList.contains('hide-repost') == false){
-                            element.classList.add('hide-repost');
+                        if(element.classList.contains(CLASS_HIDE_ELEMENT) == false){
+                            element.classList.add(CLASS_HIDE_ELEMENT);
                             counter++
                         }
                     }
@@ -129,8 +139,8 @@ function hideShowReposts(a, ev) {
                     if (doWeHideThisSong(element, ariaLabel)) {
                         if (verbose) console.log("HIDING -> " + ariaLabel);
                         // element.parentNode.removeChild(element);
-                        if(element.classList.contains('hide-repost') == false){
-                            element.classList.add('hide-repost');
+                        if(element.classList.contains(CLASS_HIDE_ELEMENT) == false){
+                            element.classList.add(CLASS_HIDE_ELEMENT);
                             counter++
                         }
                     }
@@ -146,8 +156,8 @@ function hideShowReposts(a, ev) {
         for (var i = 0; i < streamList.length; i++) {
             var element = streamLiToElement(streamList[i]);
             if (element != undefined) { // safety check
-                if(element.classList.contains('hide-repost') == true){
-                    element.classList.remove('hide-repost');
+                if(element.classList.contains(CLASS_HIDE_ELEMENT) == true){
+                    element.classList.remove(CLASS_HIDE_ELEMENT);
                 }
             }
         }
@@ -157,7 +167,7 @@ function hideShowReposts(a, ev) {
 function updateCounter(){
     if(counter != previousCounter){
         previousCounter = counter;
-        document.getElementById('number-reposts').innerHTML = counter.toString();
+        document.getElementById(ID_NUMBER_OF_REPOST).innerHTML = counter.toString();
     }
 }
 

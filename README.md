@@ -5,6 +5,6 @@ This is a chrome extention. it does the following:
 - hide those ugly playlists which contain only one song. 
 - There is a checkbox to enable and disable it instantly.
 
-But it doesn't remove the songs from the next playing songs (the thing in the right hand corner)
+But it doesn't remove the songs from the next playing songs (the thing in the right bottom hand corner)
 
 ![Screenshot](ReadMe/screenshot.png)

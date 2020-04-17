@@ -7,6 +7,9 @@ var verbose = false;
 if (debug == false) verbose = false //Verbose is not shown when debug is not shown 
 
 var checkboxElement;
+var stream = undefined;
+var counter = 0;
+var previousCounter = 0;
 
 
 function onLoad() {
@@ -28,6 +31,11 @@ chrome.runtime.onMessage.addListener(
     });
 
 async function initializeExtension(){
+
+    //reset all variables
+    stream = undefined;
+    counter = 0;
+    previousCounter = 0;
     
     var isCheckboxInitialized = (document.getElementById('hide-reposts') != null);
     while(isCheckboxInitialized != true) {
@@ -39,7 +47,12 @@ async function initializeExtension(){
     }
 
     hideShowReposts();
-    window.onscroll = hideShowReposts;
+    // when stream is updated -> recheck the song list
+    var observerStream = new MutationObserver(function(mutations) {
+        hideShowReposts()
+      });
+    observerStream.observe(stream, { attributes: false, childList: true, subtree: true, characterData: false });
+
 }
 
 
@@ -47,7 +60,7 @@ async function initializeExtension(){
 function initializeCheckbox() {
     if (debug) console.log("initializeCheckbox()");
 
-    var stream = document.getElementsByClassName("stream")[0]; // le contenu de l'onglet stream
+    stream = document.getElementsByClassName("stream")[0]; // le contenu de l'onglet stream
     // var streamHeader = document.getElementsByClassName("stream__header")[0]; // le haut de l'onglet stream
     var streamList; // la liste les chansons (li) du stream
 
@@ -92,7 +105,6 @@ function initializeCheckbox() {
 //return: nothing
 function hideShowReposts(a, ev) {
     if (debug) console.log("hideShowReposts");
-    var counter = 0;
 
     streamList = document.getElementsByClassName("soundList__item");
     if (verbose) console.log("streamList.length = " + streamList.length);
@@ -107,29 +119,45 @@ function hideShowReposts(a, ev) {
                     if (doWeHideThisPlaylist(element, ariaLabel)) {
                         if (verbose) console.log("HIDING -> " + ariaLabel);
                         // element.parentNode.removeChild(element);
-                        element.classList.add('hide-repost');
-                        counter++
+                        if(element.classList.contains('hide-repost') == false){
+                            element.classList.add('hide-repost');
+                            counter++
+                        }
                     }
                 } else {
                     if (verbose) console.log("it's a song");
                     if (doWeHideThisSong(element, ariaLabel)) {
                         if (verbose) console.log("HIDING -> " + ariaLabel);
                         // element.parentNode.removeChild(element);
-                        element.classList.add('hide-repost');
-                        counter++
+                        if(element.classList.contains('hide-repost') == false){
+                            element.classList.add('hide-repost');
+                            counter++
+                        }
                     }
                 }
             }
         }
-        document.getElementById('number-reposts').innerHTML = counter.toString()
+        updateCounter();
     } else {
         if (verbose) console.log("showing Reposts");
+        //counter will have to be recalculate when checkbox will be checked again
+        counter = 0;
+        previousCounter = 0;
         for (var i = 0; i < streamList.length; i++) {
             var element = streamLiToElement(streamList[i]);
-            if (element != undefined) {// safety check
-                element.classList.remove('hide-repost');
+            if (element != undefined) { // safety check
+                if(element.classList.contains('hide-repost') == true){
+                    element.classList.remove('hide-repost');
+                }
             }
         }
+    }
+}
+
+function updateCounter(){
+    if(counter != previousCounter){
+        previousCounter = counter;
+        document.getElementById('number-reposts').innerHTML = counter.toString();
     }
 }
 

@@ -25,13 +25,13 @@ var hiddenSongsNames = []; // can only be songs names. no playlists
 
 
 function onLoad() {
-    if(window.location.toString() == STREAM_URL){
+    if (window.location.toString() == STREAM_URL) {
         initializeExtension()
     }
 }
 
 chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
+    function (request, sender, sendResponse) {
         // Look for Exact message
         if ((request.action == "setupExtension") && (window.location.toString() == STREAM_URL)) {
             //we are on the correct page (for sure)
@@ -42,18 +42,18 @@ chrome.runtime.onMessage.addListener(
         }
     });
 
-async function initializeExtension(){
+async function initializeExtension() {
 
     //reset all variables
     stream = undefined;
     counter = 0;
     previousCounter = 0;
-    
+
     //setup checkbox
     var isCheckboxInitialized = (document.getElementById(ID_CHECKBOX) != null);
-    while(isCheckboxInitialized != true) {
+    while (isCheckboxInitialized != true) {
         isCheckboxInitialized = initializeCheckbox()
-        if(isCheckboxInitialized != true){
+        if (isCheckboxInitialized != true) {
             //wait some time -> sleep()
             await new Promise(r => setTimeout(r, 200));
         }
@@ -72,15 +72,15 @@ async function initializeExtension(){
 
     hideShowReposts();
     // when stream is updated -> recheck the song list
-    var observerStream = new MutationObserver(function(mutations) {
+    var observerStream = new MutationObserver(function (mutations) {
         hideShowReposts()
-      });
+    });
     observerStream.observe(stream, { attributes: false, childList: true, subtree: true, characterData: false });
-    
+
     //when  the curently-playing song change -> check if we skip the song
-    var observerSoundBadge = new MutationObserver(function(mutations) {
+    var observerSoundBadge = new MutationObserver(function (mutations) {
         skipSongIfNeeded()
-      });
+    });
     observerSoundBadge.observe(soundBadge, { attributes: true, childList: true, subtree: true, characterData: true });
 
 }
@@ -111,9 +111,9 @@ function initializeCheckbox() {
     var checkboxParsed = new DOMParser().parseFromString(checkboxHtml, 'text/html');
     checkboxParsed = checkboxParsed.firstChild;
     // streamHeader.appendChild(checkboxParsed);
-    if (stream != undefined){
+    if (stream != undefined) {
         stream.insertAdjacentHTML("afterbegin", checkboxHtml); //add the checkbox to the page
-        
+
         //-------------------- bind checkbox state to hide/show ----------------
         checkboxElement = document.getElementById(ID_CHECKBOX);
         //quand la valeur de checkbox change -> machiné les chansons
@@ -121,7 +121,7 @@ function initializeCheckbox() {
 
         //is checkbox correctly setup
         return true
-    }else{
+    } else {
         //TODO REtry to setup the checkbox later
         console.log("stream not initialized yet")
         //retry to init checkbox
@@ -154,7 +154,7 @@ function hideShowReposts(a, ev) {
                 } else {
                     if (verbose) console.log("it's a song");
                     if (doWeHideThisSong(element, ariaLabel)) {
-                        
+
                         hideSong(element, ariaLabel);
 
                     }
@@ -171,7 +171,7 @@ function hideShowReposts(a, ev) {
         for (var i = 0; i < streamList.length; i++) {
             var element = streamLiToElement(streamList[i]);
             if (element != undefined) { // safety check
-                if(element.classList.contains(CLASS_HIDE_ELEMENT) == true){
+                if (element.classList.contains(CLASS_HIDE_ELEMENT) == true) {
                     element.classList.remove(CLASS_HIDE_ELEMENT);
                 }
             }
@@ -179,31 +179,31 @@ function hideShowReposts(a, ev) {
     }
 }
 
-function updateCounter(){
-    if(counter != previousCounter){
+function updateCounter() {
+    if (counter != previousCounter) {
         previousCounter = counter;
         document.getElementById(ID_NUMBER_OF_REPOST).innerHTML = counter.toString();
     }
 }
 
-function hideSong(element, ariaLabel){
+function hideSong(element, ariaLabel) {
     if (verbose) console.log("HIDING -> " + ariaLabel);
     // element.parentNode.removeChild(element);
-    if(element.classList.contains(CLASS_HIDE_ELEMENT) == false){
+    if (element.classList.contains(CLASS_HIDE_ELEMENT) == false) {
         element.classList.add(CLASS_HIDE_ELEMENT);
         counter++
         hiddenSongsNames.push(getElementName(element));
     }
 }
 
-function hidePlaylist(element, ariaLabel){
+function hidePlaylist(element, ariaLabel) {
     if (verbose) console.log("HIDING -> " + ariaLabel);
     // element.parentNode.removeChild(element);
-    if(element.classList.contains(CLASS_HIDE_ELEMENT) == false){
+    if (element.classList.contains(CLASS_HIDE_ELEMENT) == false) {
         var displayAllButton = element.getElementsByClassName("compactTrackList__moreLink")[0]; // "display all" button
-        if(displayAllButton != undefined) { // if the button exist
+        if (displayAllButton != undefined) { // if the button exist
             var isPlaylistCollapsed = /\d/.test(displayAllButton.innerText); // if there is no number in the string -> the playlist is expanded
-            if( isPlaylistCollapsed == true) {
+            if (isPlaylistCollapsed == true) {
                 displayAllButton.click();
             } else {
                 addPlaylistSongsToHiddenSongs(element);
@@ -215,7 +215,7 @@ function hidePlaylist(element, ariaLabel){
             element.classList.add(CLASS_HIDE_ELEMENT);
             counter++
         }
-    }      
+    }
 }
 
 //param: element you whant to test, ariaLabel corresponding to the song
@@ -314,7 +314,7 @@ function checkRepost(ariaLabel) {
 
 function initializeSoundBadge() {
     soundBadge = document.getElementsByClassName("playControls__soundBadge")[0];
-    if(soundBadge != undefined){
+    if (soundBadge != undefined) {
         return true
     } else {
         return false
@@ -324,7 +324,7 @@ function initializeSoundBadge() {
 function addPlaylistSongsToHiddenSongs(playlistHtml) {
     // songs = playlistHtml.getElementsByClassName("compactTrackList__item");
     var songsNames = playlistHtml.getElementsByClassName("compactTrackListItem__trackTitle");
-    for( var index = 0; index < songsNames.length; index++){
+    for (var index = 0; index < songsNames.length; index++) {
         hiddenSongsNames.push(songsNames[index].innerText);
     }
 }
@@ -333,7 +333,7 @@ function addPlaylistSongsToHiddenSongs(playlistHtml) {
 function getCurrentSongName() {
     var titleContainer = document.getElementsByClassName("playbackSoundBadge__title")[0];
     var title = undefined;
-    if(titleContainer != undefined){
+    if (titleContainer != undefined) {
         title = titleContainer.getElementsByTagName("span")[1].innerText;
     }
     return title

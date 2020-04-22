@@ -20,6 +20,8 @@ var checkboxElement;
 var stream = undefined;
 var counter = 0;
 var previousCounter = 0;
+var soundBadge; //soundBadge is the element containing the song currently playing
+var hiddenSongsNames = []; // can only be songs names. no playlists
 
 
 function onLoad() {
@@ -47,6 +49,7 @@ async function initializeExtension(){
     counter = 0;
     previousCounter = 0;
     
+    //setup checkbox
     var isCheckboxInitialized = (document.getElementById(ID_CHECKBOX) != null);
     while(isCheckboxInitialized != true) {
         isCheckboxInitialized = initializeCheckbox()
@@ -56,12 +59,29 @@ async function initializeExtension(){
         }
     }
 
+    //setup soundBadge
+    var isSoundBadgeInitialized = false;
+    while (isSoundBadgeInitialized != true) {
+        isSoundBadgeInitialized = initializeSoundBadge()
+        if (isSoundBadgeInitialized != true) {
+            //wait some time -> sleep()
+            await new Promise(r => setTimeout(r, 200));
+        }
+    }
+
+
     hideShowReposts();
     // when stream is updated -> recheck the song list
     var observerStream = new MutationObserver(function(mutations) {
         hideShowReposts()
       });
-        observerStream.observe(stream, { attributes: false, childList: true, subtree: true, characterData: false });
+    observerStream.observe(stream, { attributes: false, childList: true, subtree: true, characterData: false });
+    
+    //when  the curently-playing song change -> check if we skip the song
+    var observerSoundBadge = new MutationObserver(function(mutations) {
+        skipSongIfNeeded()
+      });
+    observerSoundBadge.observe(soundBadge, { attributes: true, childList: true, subtree: true, characterData: true });
 
 }
 
@@ -127,22 +147,16 @@ function hideShowReposts(a, ev) {
                 if (isPlaylist(element, ariaLabel)) {
                     if (verbose) console.log("it's a playlist");
                     if (doWeHideThisPlaylist(element, ariaLabel)) {
-                        if (verbose) console.log("HIDING -> " + ariaLabel);
-                        // element.parentNode.removeChild(element);
-                        if(element.classList.contains(CLASS_HIDE_ELEMENT) == false){
-                            element.classList.add(CLASS_HIDE_ELEMENT);
-                            counter++
-                        }
+
+                        hidePlaylist(element, ariaLabel);
+
                     }
                 } else {
                     if (verbose) console.log("it's a song");
                     if (doWeHideThisSong(element, ariaLabel)) {
-                        if (verbose) console.log("HIDING -> " + ariaLabel);
-                        // element.parentNode.removeChild(element);
-                        if(element.classList.contains(CLASS_HIDE_ELEMENT) == false){
-                            element.classList.add(CLASS_HIDE_ELEMENT);
-                            counter++
-                        }
+                        
+                        hideSong(element, ariaLabel);
+
                     }
                 }
             }
@@ -153,6 +167,7 @@ function hideShowReposts(a, ev) {
         //counter will have to be recalculate when checkbox will be checked again
         counter = 0;
         previousCounter = 0;
+        hiddenSongsNames = [];
         for (var i = 0; i < streamList.length; i++) {
             var element = streamLiToElement(streamList[i]);
             if (element != undefined) { // safety check
@@ -171,6 +186,38 @@ function updateCounter(){
     }
 }
 
+function hideSong(element, ariaLabel){
+    if (verbose) console.log("HIDING -> " + ariaLabel);
+    // element.parentNode.removeChild(element);
+    if(element.classList.contains(CLASS_HIDE_ELEMENT) == false){
+        element.classList.add(CLASS_HIDE_ELEMENT);
+        counter++
+        hiddenSongsNames.push(getElementName(element));
+    }
+}
+
+function hidePlaylist(element, ariaLabel){
+    if (verbose) console.log("HIDING -> " + ariaLabel);
+    // element.parentNode.removeChild(element);
+    if(element.classList.contains(CLASS_HIDE_ELEMENT) == false){
+        var displayAllButton = element.getElementsByClassName("compactTrackList__moreLink")[0]; // "display all" button
+        if(displayAllButton != undefined) { // if the button exist
+            var isPlaylistCollapsed = /\d/.test(displayAllButton.innerText); // if there is no number in the string -> the playlist is expanded
+            if( isPlaylistCollapsed == true) {
+                displayAllButton.click();
+            } else {
+                addPlaylistSongsToHiddenSongs(element);
+                element.classList.add(CLASS_HIDE_ELEMENT);
+                counter++;
+            }
+        } else {
+            addPlaylistSongsToHiddenSongs(element);
+            element.classList.add(CLASS_HIDE_ELEMENT);
+            counter++
+        }
+    }      
+}
+
 //param: element you whant to test, ariaLabel corresponding to the song
 //return boolean
 function doWeHideThisSong(element, ariaLabel) {
@@ -178,7 +225,7 @@ function doWeHideThisSong(element, ariaLabel) {
 
     //soundContext__usernameLink
     var artistName = getArtistName(element);
-    var songName = element.getElementsByClassName("soundTitle__title")[0].getElementsByTagName('span')[0].innerHTML;//full name like: blur - song 2 (david remix)
+    var songName = getElementName(element);
 
     if (verbose) console.log("artistName = " + artistName);
     if (verbose) console.log("songName = " + songName);
@@ -239,7 +286,11 @@ function getPlaylistLength(element) {
 }
 
 function getArtistName(element) {
-    return element.getElementsByClassName("soundContext__usernameLink")[0].innerHTML;
+    return element.getElementsByClassName("soundContext__usernameLink")[0].innerText;
+}
+
+function getElementName(element) { //song name or playlist name
+    return element.getElementsByClassName("soundTitle__title")[0].getElementsByTagName('span')[0].innerText; //full name like: blur - song 2 (david remix)
 }
 
 
@@ -261,7 +312,47 @@ function checkRepost(ariaLabel) {
     }
 }
 
+function initializeSoundBadge() {
+    soundBadge = document.getElementsByClassName("playControls__soundBadge")[0];
+    if(soundBadge != undefined){
+        return true
+    } else {
+        return false
+    }
+}
 
+function addPlaylistSongsToHiddenSongs(playlistHtml) {
+    // songs = playlistHtml.getElementsByClassName("compactTrackList__item");
+    var songsNames = playlistHtml.getElementsByClassName("compactTrackListItem__trackTitle");
+    for( var index = 0; index < songsNames.length; index++){
+        hiddenSongsNames.push(songsNames[index].innerText);
+    }
+}
+
+//return the title as string or undefined
+function getCurrentSongName() {
+    var titleContainer = document.getElementsByClassName("playbackSoundBadge__title")[0];
+    var title = undefined;
+    if(titleContainer != undefined){
+        title = titleContainer.getElementsByTagName("span")[1].innerText;
+    }
+    return title
+}
+
+function skipThisSong() {
+    if (debug) console.log("skip this song");
+    document.getElementsByClassName("skipControl__next")[0].click();
+}
+
+function skipSongIfNeeded() {
+    if (debug) console.log("skipSongIfNeeded()");
+    //if current song name is part of hidden songs then skip it
+    if (verbose) console.log("current song = " + getCurrentSongName());
+    if (verbose) console.log("hiddenSongsNames = " + hiddenSongsNames);
+    if (hiddenSongsNames.indexOf(getCurrentSongName()) != -1) {
+        skipThisSong();
+    }
+}
 
 
 window.onload = onLoad;

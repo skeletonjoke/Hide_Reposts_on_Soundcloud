@@ -6,15 +6,11 @@
 
 TODOs:
 
--garder les playlists dont le nom contient le nom de l'artiste (meme en repost)
-
-- est-ce que la playlist (d'écoute) va suivre les tracks affich� en html ? non. comment faire ?
-
--hide soundcloud go stuff ?
-
 - go check the extension error "Unchecked runtime.lastError: The message port closed before a response was received."
 
+- playlist are not correctly put in the array "hiddenSongsNames" because of a race issue.
 
+- we need to remove the multiple space in the array "hiddenSongsNames" elements. Soundcloud displays the space in stream but it collapse it in the songbadge.
 
 
 

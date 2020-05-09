@@ -1,9 +1,9 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
    
     "name": "Soundcloud hide repost",
-    "version": "1.0",
-    "description": "Hide reposts on your soundcloud stream",
+    "version": "1.1",
+    "description": "Hideand skip reposts on your soundcloud stream.",
     "background": {
       "scripts":["background.js"]
     },

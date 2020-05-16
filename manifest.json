@@ -1,5 +1,5 @@
 {
-    "manifest_version": 3,
+    "manifest_version": 2, // fixed value
    
     "name": "Soundcloud hide repost",
     "version": "1.1",
